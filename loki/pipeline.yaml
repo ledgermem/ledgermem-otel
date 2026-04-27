@@ -1,0 +1,26 @@
+# Loki pipeline stages for LedgerMem service logs.
+# Drop into your Promtail / Grafana Agent scrape_configs under `pipeline_stages`.
+
+- json:
+    expressions:
+      timestamp: time
+      level:     level
+      msg:       msg
+      trace_id:  trace_id
+      span_id:   span_id
+      workspace: workspace_id
+      route:     http.route
+      status:    http.status_code
+      latency_ms: http.duration_ms
+
+- timestamp:
+    source: timestamp
+    format: RFC3339Nano
+
+- labels:
+    level:
+    route:
+    status:
+
+- output:
+    source: msg

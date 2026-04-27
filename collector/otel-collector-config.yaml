@@ -1,0 +1,95 @@
+# Recommended OTel Collector pipeline for LedgerMem deployments.
+# Routes traces → Tempo, metrics → Prometheus, logs → Loki.
+# Add a `prometheusremotewrite` exporter if you ship metrics to a hosted backend.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Scrape the LedgerMem API's /metrics endpoint
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: ledgermem-api
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["api:9090"]
+
+processors:
+  batch:
+    send_batch_size: 8192
+    timeout: 5s
+
+  # Drop noisy health-check spans
+  filter/healthchecks:
+    traces:
+      span:
+        - 'attributes["http.target"] == "/healthz"'
+        - 'attributes["http.target"] == "/readyz"'
+
+  # Add deployment metadata to every signal
+  resource:
+    attributes:
+      - key: service.namespace
+        value: ledgermem
+        action: insert
+      - key: deployment.environment
+        from_attribute: env
+        action: insert
+
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+exporters:
+  # Traces → Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Metrics → Prometheus (pull model)
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: ledgermem
+    send_timestamps: true
+
+  # Logs → Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+
+  # Debug to stdout (disable in prod)
+  debug:
+    verbosity: basic
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+service:
+  extensions: [health_check, pprof]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, filter/healthchecks, resource, batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [loki]
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      level: detailed

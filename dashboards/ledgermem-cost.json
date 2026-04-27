@@ -1,0 +1,40 @@
+{
+  "title": "LedgerMem — cost",
+  "uid": "ledgermem-cost",
+  "tags": ["ledgermem"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": { "from": "now-7d", "to": "now" },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "LLM tokens per minute (input + output, by provider)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum by (provider) (rate(ledgermem_llm_input_tokens_total[1m]))", "legendFormat": "{{provider}} in" },
+        { "expr": "sum by (provider) (rate(ledgermem_llm_output_tokens_total[1m]))", "legendFormat": "{{provider}} out" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Embedding tokens per minute",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum by (model) (rate(ledgermem_embedding_tokens_total[1m]))", "legendFormat": "{{model}}" }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "Cost by workspace (top 20, last 24h, $)",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 10 },
+      "targets": [
+        {
+          "expr": "topk(20, sum by (workspace_id) (increase(ledgermem_cost_usd_total[24h])))",
+          "legendFormat": "{{workspace_id}}"
+        }
+      ]
+    }
+  ]
+}

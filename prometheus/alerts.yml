@@ -1,0 +1,57 @@
+groups:
+  - name: ledgermem-slo
+    interval: 30s
+    rules:
+      - alert: LedgerMemAPI_5xxRateHigh
+        expr: |
+          sum(rate(ledgermem_http_requests_total{status=~"5.."}[5m]))
+            / sum(rate(ledgermem_http_requests_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: page
+          slo: api-availability
+        annotations:
+          summary: "LedgerMem API 5xx rate above 1% for 5 minutes"
+          description: "Check upstream Postgres + vector store health."
+
+      - alert: LedgerMemAPI_LatencyP95High
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(ledgermem_http_request_duration_seconds_bucket[5m]))
+          ) > 2
+        for: 10m
+        labels:
+          severity: page
+          slo: api-latency
+        annotations:
+          summary: "LedgerMem API p95 latency > 2s for 10 minutes"
+
+      - alert: LedgerMemRetrieval_RecallLow
+        expr: avg_over_time(ledgermem_retrieval_recall_at_5[15m]) < 0.7
+        for: 30m
+        labels:
+          severity: ticket
+          slo: retrieval-quality
+        annotations:
+          summary: "Recall@5 dropped below 0.7 — review retrieval pipeline"
+
+  - name: ledgermem-saturation
+    interval: 30s
+    rules:
+      - alert: LedgerMemPostgresConnectionsNearMax
+        expr: |
+          pg_stat_activity_count{datname="ledgermem"}
+            / pg_settings_max_connections > 0.85
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Postgres connection pool > 85% utilized"
+
+      - alert: LedgerMemRedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.85
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Redis memory > 85% utilized"
