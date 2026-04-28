@@ -58,6 +58,12 @@ exporters:
     endpoint: 0.0.0.0:8889
     namespace: ledgermem
     send_timestamps: true
+    # Without this, resource attributes (service.namespace,
+    # deployment.environment, k8s.pod.name, etc.) added by the `resource`
+    # processor are silently dropped from scraped metrics — making it
+    # impossible to filter by env or namespace in PromQL.
+    resource_to_telemetry_conversion:
+      enabled: true
 
   # Logs → Loki
   loki:
