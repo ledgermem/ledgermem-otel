@@ -70,8 +70,12 @@ exporters:
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
+  # pprof exposes the Go runtime (heap, goroutines, allocator) and lets a
+  # caller trigger CPU profiling. Bind to localhost only — anything more
+  # open lets cluster neighbours profile / DoS the collector. Port-forward
+  # for debugging.
   pprof:
-    endpoint: 0.0.0.0:1777
+    endpoint: 127.0.0.1:1777
 
 service:
   extensions: [health_check, pprof]
