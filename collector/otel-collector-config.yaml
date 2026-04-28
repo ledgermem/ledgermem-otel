@@ -21,7 +21,14 @@ receivers:
 
 processors:
   batch:
+    # send_batch_size is the *target* batch size; the processor will keep
+    # accumulating beyond it until `timeout` elapses. Under a sustained burst
+    # this lets a single batch grow until the exporter request exceeds the
+    # backend limit (4 MiB on Tempo, 1 MiB on Loki) and the whole batch is
+    # rejected. send_batch_max_size enforces a hard upper bound so large
+    # incoming batches are split rather than dropped wholesale on queue full.
     send_batch_size: 8192
+    send_batch_max_size: 16384
     timeout: 5s
 
   # Drop noisy health-check spans
