@@ -1,4 +1,4 @@
-# Loki pipeline stages for LedgerMem service logs.
+# Loki pipeline stages for Mnemo service logs.
 # Drop into your Promtail / Grafana Agent scrape_configs under `pipeline_stages`.
 
 - json:

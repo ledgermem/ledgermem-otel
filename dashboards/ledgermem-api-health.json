@@ -1,7 +1,7 @@
 {
-  "title": "LedgerMem — API health",
-  "uid": "ledgermem-api-health",
-  "tags": ["ledgermem"],
+  "title": "Mnemo — API health",
+  "uid": "getmnemo-api-health",
+  "tags": ["getmnemo"],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -13,7 +13,7 @@
         "name": "env",
         "type": "query",
         "datasource": { "type": "prometheus", "uid": "prometheus" },
-        "query": "label_values(ledgermem_http_requests_total, deployment_environment)",
+        "query": "label_values(getmnemo_http_requests_total, deployment_environment)",
         "current": { "text": "prod", "value": "prod" }
       }
     ]
@@ -25,7 +25,7 @@
       "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
       "targets": [
         {
-          "expr": "sum by (status_family) (rate(ledgermem_http_requests_total{deployment_environment=\"$env\"}[1m]))",
+          "expr": "sum by (status_family) (rate(getmnemo_http_requests_total{deployment_environment=\"$env\"}[1m]))",
           "legendFormat": "{{status_family}}"
         }
       ]
@@ -35,9 +35,9 @@
       "title": "Latency p50 / p95 / p99 (s)",
       "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(ledgermem_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p50" },
-        { "expr": "histogram_quantile(0.95, sum by (le) (rate(ledgermem_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p95" },
-        { "expr": "histogram_quantile(0.99, sum by (le) (rate(ledgermem_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p99" }
+        { "expr": "histogram_quantile(0.50, sum by (le) (rate(getmnemo_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum by (le) (rate(getmnemo_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum by (le) (rate(getmnemo_http_request_duration_seconds_bucket{deployment_environment=\"$env\"}[5m])))", "legendFormat": "p99" }
       ]
     },
     {
@@ -46,7 +46,7 @@
       "gridPos": { "x": 0, "y": 8, "w": 6, "h": 6 },
       "targets": [
         {
-          "expr": "sum(rate(ledgermem_http_requests_total{status=~\"5..\",deployment_environment=\"$env\"}[5m])) / sum(rate(ledgermem_http_requests_total{deployment_environment=\"$env\"}[5m]))",
+          "expr": "sum(rate(getmnemo_http_requests_total{status=~\"5..\",deployment_environment=\"$env\"}[5m])) / sum(rate(getmnemo_http_requests_total{deployment_environment=\"$env\"}[5m]))",
           "instant": true
         }
       ],

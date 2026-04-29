@@ -1,4 +1,4 @@
-# Recommended OTel Collector pipeline for LedgerMem deployments.
+# Recommended OTel Collector pipeline for Mnemo deployments.
 # Routes traces → Tempo, metrics → Prometheus, logs → Loki.
 # Add a `prometheusremotewrite` exporter if you ship metrics to a hosted backend.
 
@@ -10,11 +10,11 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-  # Scrape the LedgerMem API's /metrics endpoint
+  # Scrape the Mnemo API's /metrics endpoint
   prometheus:
     config:
       scrape_configs:
-        - job_name: ledgermem-api
+        - job_name: getmnemo-api
           scrape_interval: 15s
           static_configs:
             - targets: ["api:9090"]
@@ -42,7 +42,7 @@ processors:
   resource:
     attributes:
       - key: service.namespace
-        value: ledgermem
+        value: getmnemo
         action: insert
       - key: deployment.environment
         from_attribute: env
@@ -63,7 +63,7 @@ exporters:
   # Metrics → Prometheus (pull model)
   prometheus:
     endpoint: 0.0.0.0:8889
-    namespace: ledgermem
+    namespace: getmnemo
     send_timestamps: true
     # Without this, resource attributes (service.namespace,
     # deployment.environment, k8s.pod.name, etc.) added by the `resource`

@@ -1,7 +1,7 @@
 {
-  "title": "LedgerMem — cost",
-  "uid": "ledgermem-cost",
-  "tags": ["ledgermem"],
+  "title": "Mnemo — cost",
+  "uid": "getmnemo-cost",
+  "tags": ["getmnemo"],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
@@ -13,8 +13,8 @@
       "title": "LLM tokens per minute (input + output, by provider)",
       "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum by (provider) (rate(ledgermem_llm_input_tokens_total[1m]))", "legendFormat": "{{provider}} in" },
-        { "expr": "sum by (provider) (rate(ledgermem_llm_output_tokens_total[1m]))", "legendFormat": "{{provider}} out" }
+        { "expr": "sum by (provider) (rate(getmnemo_llm_input_tokens_total[1m]))", "legendFormat": "{{provider}} in" },
+        { "expr": "sum by (provider) (rate(getmnemo_llm_output_tokens_total[1m]))", "legendFormat": "{{provider}} out" }
       ]
     },
     {
@@ -22,7 +22,7 @@
       "title": "Embedding tokens per minute",
       "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum by (model) (rate(ledgermem_embedding_tokens_total[1m]))", "legendFormat": "{{model}}" }
+        { "expr": "sum by (model) (rate(getmnemo_embedding_tokens_total[1m]))", "legendFormat": "{{model}}" }
       ]
     },
     {
@@ -31,7 +31,7 @@
       "gridPos": { "x": 0, "y": 8, "w": 24, "h": 10 },
       "targets": [
         {
-          "expr": "topk(20, sum by (workspace_id) (increase(ledgermem_cost_usd_total[24h])))",
+          "expr": "topk(20, sum by (workspace_id) (increase(getmnemo_cost_usd_total[24h])))",
           "legendFormat": "{{workspace_id}}"
         }
       ]
